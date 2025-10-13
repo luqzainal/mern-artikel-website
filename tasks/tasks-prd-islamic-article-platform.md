@@ -1,0 +1,91 @@
+## Relevant Files
+
+- `docker-compose.yml` - Konfigurasi perkhidmatan Docker untuk aplikasi.
+- `traefik.yml` - Konfigurasi Traefik untuk routing dan SSL.
+- `backend/Dockerfile` - Dockerfile untuk membina imej backend.
+- `frontend/Dockerfile` - Dockerfile untuk membina imej frontend.
+- `backend/prisma/schema.prisma` - Skema pangkalan data Prisma ORM.
+- `backend/src/index.ts` - Fail utama aplikasi Express backend.
+- `backend/src/routes/auth.ts` - Laluan untuk pengesahan Google OAuth.
+- `backend/src/routes/articles.ts` - Laluan untuk pengurusan artikel.
+- `backend/src/routes/categories.ts` - Laluan untuk pengurusan kategori.
+- `backend/src/routes/tags.ts` - Laluan untuk pengurusan tag.
+- `backend/src/routes/reviews.ts` - Laluan untuk pengurusan semakan.
+- `backend/src/routes/users.ts` - Laluan untuk pengurusan pengguna dan peranan.
+- `backend/src/middleware/auth.ts` - Middleware untuk perlindungan laluan.
+- `backend/src/middleware/errorHandler.ts` - Middleware untuk pengendalian ralat.
+- `backend/src/controllers/authController.ts` - Logik perniagaan untuk pengesahan.
+- `backend/src/controllers/articleController.ts` - Logik perniagaan untuk artikel.
+- `backend/src/utils/passportSetup.ts` - Konfigurasi Passport.js.
+- `frontend/src/App.tsx` - Komponen utama aplikasi React.
+- `frontend/src/components/Auth.tsx` - Komponen untuk Google Sign-In.
+- `frontend/src/pages/Home.tsx` - Halaman utama.
+- `frontend/src/pages/ArticleDetail.tsx` - Halaman paparan artikel.
+- `frontend/src/components/ArticleCard.tsx` - Komponen kad artikel.
+- `frontend/src/components/LanguageToggle.tsx` - Komponen togole bahasa.
+- `frontend/src/components/admin/AdminDashboard.tsx` - Papan pemuka admin.
+- `frontend/src/components/admin/UserManagement.tsx` - Modul pengurusan pengguna admin.
+- `frontend/src/components/admin/ArticleManagement.tsx` - Modul pengurusan artikel admin.
+- `frontend/src/components/admin/ReviewManagement.tsx` - Modul pengurusan semakan admin.
+- `frontend/src/styles/index.css` - Fail gaya TailwindCSS/NextUI.
+- `frontend/tailwind.config.js` - Konfigurasi TailwindCSS.
+- `frontend/src/context/AuthContext.tsx` - Konteks pengesahan React.
+- `backend/tests/**/*.test.ts` - Fail ujian backend.
+- `frontend/src/**/*.test.tsx` - Fail ujian frontend.
+- `package.json` (backend & frontend) - Fail konfigurasi projek.
+
+### Notes
+
+- Unit tests should typically be placed alongside the code files they are testing (e.g., `MyComponent.tsx` and `MyComponent.test.tsx` in the same directory).
+- Use `npx jest [optional/path/to/test/file]` to run tests. Running without a path executes all tests found by the Jest configuration.
+
+## Tasks
+
+- [x] 1.0 Infrastructure Setup & Deployment
+  - [x] 1.1 Sediakan struktur direktori projek (`backend`, `frontend`, `letsencrypt`).
+  - [x] 1.2 Konfigurasi `docker-compose.yml` untuk perkhidmatan Traefik, PostgreSQL, Backend, dan Frontend.
+  - [x] 1.3 Cipta `Dockerfile` untuk aplikasi backend (Node.js/Express).
+  - [x] 1.4 Cipta `Dockerfile` untuk aplikasi frontend (React).
+  - [x] 1.5 Konfigurasi Traefik untuk routing, Let's Encrypt SSL, dan middleware asas.
+  - [x] 1.6 Uji konfigurasi Docker Compose dan pastikan semua perkhidmatan berjalan.
+- [x] 2.0 Database & Backend API Development
+  - [x] 2.1 Sediakan Prisma ORM dan sambungan PostgreSQL.
+  - [x] 2.2 Tentukan skema Prisma berdasarkan model pangkalan data yang diberikan (users, roles, articles, article_translations, categories, tags, article_tags, reviews, media).
+  - [x] 2.3 Laksanakan migrasi awal pangkalan data dengan Prisma Migrate.
+  - [x] 2.4 Cipta API RESTful untuk CRUD operasi bagi:
+    - [x] 2.4.1 Pengguna (Pengurusan asas oleh Admin).
+    - [x] 2.4.2 Peranan.
+    - [x] 2.4.3 Kategori.
+    - [x] 2.4.4 Tag.
+    - [x] 2.4.5 Artikel (termasuk penciptaan dan pengeditan draf).
+    - [x] 2.4.6 Terjemahan Artikel (untuk kedua-dua versi Melayu dan Inggeris).
+    - [x] 2.4.7 Semakan.
+    - [x] 2.4.8 Media (muat naik dan pengurusan imej).
+  - [x] 2.5 Laksanakan pengurusan rujukan gaya APA untuk artikel.
+  - [x] 2.6 Sediakan titik akhir API untuk fungsi perkongsian dan komen.
+  - [x] 2.7 Laksanakan middleware keselamatan Express (Helmet, CSRF protection).
+  - [x] 2.8 Sediakan cron job untuk sandaran pangkalan data harian (`pg_dump`).
+- [x] 3.0 Authentication & Authorization
+  - [x] 3.1 Konfigurasi Google OAuth 2.0 menggunakan Passport.js untuk backend.
+  - [x] 3.2 Laksanakan strategi Passport.js untuk Google Sign-In.
+  - [x] 3.3 Integrasikan JWT untuk pengesahan sesi antara frontend dan backend.
+  - [x] 3.4 Laksanakan middleware kebenaran berdasarkan peranan pengguna (Admin, Reviewer, Author, Translator, Reader).
+  - [x] 3.5 Pastikan tetapan capaian berdasarkan peranan pada semua laluan API.
+- [x] 4.0 Frontend Development (Core UI & Features)
+  - [x] 4.1 Sediakan projek React dengan TailwindCSS atau NextUI.
+  - [x] 4.2 Reka dan laksanakan komponen UI mengikut garis panduan UI/UX (warna, fon, susun atur Medium.com).
+  - [x] 4.3 Laksanakan sokongan mod gelap.
+  - [x] 4.4 Cipta halaman dan komponen untuk paparan artikel (termasuk kandungan terhad untuk tetamu).
+  - [x] 4.5 Laksanakan togole bahasa/paparan bertab untuk artikel bilingual.
+  - [x] 4.6 Integrasikan Google Sign-In pada frontend.
+  - [x] 4.7 Laksanakan fungsi perkongsian artikel.
+  - [x] 4.8 Laksanakan sistem komen (paparan dan penyerahan komen).
+- [x] 5.0 Admin Panel & Workflow Implementation
+  - [x] 5.1 Bangunkan komponen UI untuk Papan Pemuka Admin.
+  - [x] 5.2 Laksanakan modul Pengurusan Pengguna & Peranan dalam panel admin.
+  - [x] 5.3 Laksanakan modul Pengurusan Artikel (CRUD, pengurusan status semakan) dalam panel admin.
+  - [x] 5.4 Laksanakan modul Pengurusan Kategori & Tag dalam panel admin.
+  - [x] 5.5 Laksanakan modul Perpustakaan Media (muat naik dan pengurusan imej) dalam panel admin.
+  - [x] 5.6 Laksanakan modul Pengurusan Semakan untuk menjejak dan mengurus proses semakan artikel.
+  - [x] 5.7 Laksanakan aliran kerja semakan dan kelulusan artikel penuh, termasuk pengesanan audit.
+  - [x] 5.8 Laksanakan modul Tetapan Sistem (togole bahasa, SEO meta asas) dalam panel admin.

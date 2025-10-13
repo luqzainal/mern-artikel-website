@@ -1,0 +1,32 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Bash(chmod:*)",
+      "Bash(docker-compose:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(npx prisma:*)",
+      "Bash(docker exec:*)",
+      "Bash(npm run prisma:seed:*)",
+      "Bash(docker cp:*)",
+      "Bash(curl:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(node:*)",
+      "Bash(powershell -Command \"Invoke-RestMethod -Uri ''http://localhost:3000/api/auth/login'' -Method Post -Body (@{email=''admin@islamicarticles.com'';password=''AdminPass123''}|ConvertTo-Json) -ContentType ''application/json''\")",
+      "Bash(powershell:*)",
+      "Bash(npm init:*)",
+      "Bash(npm uninstall:*)",
+      "Bash(cat:*)",
+      "Bash(docker build:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker ps:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

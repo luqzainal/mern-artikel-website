@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@types/react-beautiful-dnd": "^13.1.8",
+    "bcrypt": "^6.0.0",
+    "react-beautiful-dnd": "^13.1.1",
+    "react-dropzone": "^14.3.8"
+  },
+  "devDependencies": {
+    "@types/bcrypt": "^6.0.0"
+  }
+}

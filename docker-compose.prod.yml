@@ -1,0 +1,130 @@
+version: '3.8'
+
+services:
+  traefik:
+    image: traefik:v2.10
+    container_name: traefik
+    restart: unless-stopped
+    command:
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge=true"
+      - "--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.letsencrypt.acme.email=admin@islamicarticles.com"
+      - "--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./letsencrypt:/letsencrypt
+    networks:
+      - web
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-islamic_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-islamic_pass_2024}
+      POSTGRES_DB: ${POSTGRES_DB:-islamic_articles}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./scripts/db-backup.sh:/usr/local/bin/db-backup.sh:ro
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-islamic_user}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Database backup cron service
+  db-backup:
+    image: postgres:15-alpine
+    container_name: db-backup
+    restart: unless-stopped
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: ${POSTGRES_USER:-islamic_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-islamic_pass_2024}
+      POSTGRES_DB: ${POSTGRES_DB:-islamic_articles}
+    volumes:
+      - ./backups:/var/backups/postgresql
+      - ./scripts/db-backup.sh:/usr/local/bin/db-backup.sh:ro
+    networks:
+      - internal
+    # Run backup daily at 2 AM
+    entrypoint: >
+      sh -c "
+        apk add --no-cache busybox-extras &&
+        chmod +x /usr/local/bin/db-backup.sh &&
+        echo '0 2 * * * /usr/local/bin/db-backup.sh >> /var/log/backup.log 2>&1' | crontab - &&
+        crond -f -l 2
+      "
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${POSTGRES_USER:-islamic_user}:${POSTGRES_PASSWORD:-islamic_pass_2024}@postgres:5432/${POSTGRES_DB:-islamic_articles}?schema=public
+      JWT_SECRET: ${JWT_SECRET}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL}
+      FRONTEND_URL: ${FRONTEND_URL:-https://islamicarticles.com}
+    networks:
+      - web
+      - internal
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=Host(`api.islamicarticles.com`)"
+      - "traefik.http.routers.backend.entrypoints=websecure"
+      - "traefik.http.routers.backend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.backend.loadbalancer.server.port=3000"
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      VITE_API_URL: https://api.islamicarticles.com
+      VITE_GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+    networks:
+      - web
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`islamicarticles.com`) || Host(`www.islamicarticles.com`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=letsencrypt"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+
+networks:
+  web:
+    driver: bridge
+  internal:
+    driver: bridge
+
+volumes:
+  postgres_data:

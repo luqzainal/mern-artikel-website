@@ -1,0 +1,294 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model with roles
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  name          String
+  password      String?   // Optional: for email/password login
+  googleId      String?   @unique
+  profilePicture String?
+  roleId        String
+  role          Role      @relation(fields: [roleId], references: [id])
+  isActive      Boolean   @default(true)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // Relations
+  articles      Article[]
+  reviews       Review[]
+  comments      Comment[]
+  translations  ArticleTranslation[]
+
+  @@index([email])
+  @@index([googleId])
+  @@map("users")
+}
+
+// Role model
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique // Admin, Reviewer, Author, Translator, Reader
+  description String?
+  permissions Json     // Store permissions as JSON
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  users       User[]
+
+  @@map("roles")
+}
+
+// Category model
+model Category {
+  id          String    @id @default(uuid())
+  nameEn      String
+  nameMy      String
+  slug        String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  articles    Article[]
+
+  @@index([slug])
+  @@map("categories")
+}
+
+// Tag model
+model Tag {
+  id          String       @id @default(uuid())
+  nameEn      String
+  nameMy      String
+  slug        String       @unique
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  articleTags ArticleTag[]
+
+  @@index([slug])
+  @@map("tags")
+}
+
+// Article model
+model Article {
+  id              String     @id @default(uuid())
+  authorId        String
+  author          User       @relation(fields: [authorId], references: [id])
+  categoryId      String
+  category        Category   @relation(fields: [categoryId], references: [id])
+  slug            String     @unique
+  featuredImage   String?
+
+  // Review workflow
+  status          ArticleStatus @default(DRAFT)
+  publishedAt     DateTime?
+
+  // SEO
+  metaDescription String?
+
+  // References in APA format
+  references      Json?      // Store references as JSON array
+
+  // View count
+  viewCount       Int        @default(0)
+
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // Relations
+  translations    ArticleTranslation[]
+  tags            ArticleTag[]
+  reviews         Review[]
+  comments        Comment[]
+  media           Media[]
+
+  @@index([slug])
+  @@index([authorId])
+  @@index([categoryId])
+  @@index([status])
+  @@index([publishedAt])
+  @@map("articles")
+}
+
+// Article status enum
+enum ArticleStatus {
+  DRAFT
+  PENDING_REVIEW
+  IN_REVIEW
+  APPROVED
+  PUBLISHED
+  REJECTED
+  ARCHIVED
+}
+
+// Article Translation model (Malay & English)
+model ArticleTranslation {
+  id          String   @id @default(uuid())
+  articleId   String
+  article     Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  language    Language
+  title       String
+  content     String   @db.Text
+  excerpt     String?  @db.Text
+  translatorId String?
+  translator  User?    @relation(fields: [translatorId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([articleId, language])
+  @@index([articleId])
+  @@index([language])
+  @@map("article_translations")
+}
+
+// Language enum
+enum Language {
+  EN
+  MY
+}
+
+// Article-Tag junction table
+model ArticleTag {
+  id        String   @id @default(uuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  tagId     String
+  tag       Tag      @relation(fields: [tagId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([articleId, tagId])
+  @@index([articleId])
+  @@index([tagId])
+  @@map("article_tags")
+}
+
+// Review model
+model Review {
+  id          String       @id @default(uuid())
+  articleId   String
+  article     Article      @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  reviewerId  String
+  reviewer    User         @relation(fields: [reviewerId], references: [id])
+  status      ReviewStatus
+  comments    String?      @db.Text
+  reviewedAt  DateTime     @default(now())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  @@index([articleId])
+  @@index([reviewerId])
+  @@index([status])
+  @@map("reviews")
+}
+
+// Review status enum
+enum ReviewStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  CHANGES_REQUESTED
+}
+
+// Comment model
+model Comment {
+  id        String   @id @default(uuid())
+  articleId String
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  content   String   @db.Text
+  parentId  String?
+  parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   Comment[] @relation("CommentReplies")
+  isApproved Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([articleId])
+  @@index([userId])
+  @@index([parentId])
+  @@map("comments")
+}
+
+// Media model for image uploads
+model Media {
+  id          String   @id @default(uuid())
+  articleId   String?
+  article     Article? @relation(fields: [articleId], references: [id], onDelete: SetNull)
+  filename    String
+  originalName String
+  mimeType    String
+  size        Int
+  url         String
+  altText     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([articleId])
+  @@map("media")
+}
+
+// Audit log for tracking changes
+model AuditLog {
+  id          String   @id @default(uuid())
+  userId      String
+  action      String   // CREATE, UPDATE, DELETE, PUBLISH, etc.
+  entityType  String   // Article, User, etc.
+  entityId    String
+  changes     Json?    // Store old and new values
+  ipAddress   String?
+  userAgent   String?
+  createdAt   DateTime @default(now())
+
+  @@index([userId])
+  @@index([entityType, entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// About page settings - Single record for site about page
+model AboutPage {
+  id              String   @id @default(uuid())
+  titleEn         String
+  titleMy         String
+  descriptionEn   String   @db.Text
+  descriptionMy   String   @db.Text
+  missionEn       String?  @db.Text
+  missionMy       String?  @db.Text
+  visionEn        String?  @db.Text
+  visionMy        String?  @db.Text
+  valuesEn        Json?    // Array of values in English
+  valuesMy        Json?    // Array of values in Malay
+  updatedAt       DateTime @updatedAt
+  createdAt       DateTime @default(now())
+
+  @@map("about_page")
+}
+
+// Contact submissions from users
+model ContactSubmission {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  subject   String?
+  message   String   @db.Text
+  isRead    Boolean  @default(false)
+  replied   Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isRead])
+  @@index([createdAt])
+  @@map("contact_submissions")
+}

@@ -1,0 +1,170 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply font-sans antialiased;
+    margin: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold;
+  }
+}
+
+@layer components {
+  /* Card hover effect */
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-lg hover:-translate-y-1;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    @apply animate-spin rounded-full border-4 border-gray-300 border-t-primary-600;
+  }
+
+  /* Button variants */
+  .btn-primary {
+    @apply bg-primary-600 text-white hover:bg-primary-700 px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+
+  .btn-secondary {
+    @apply bg-secondary-600 text-white hover:bg-secondary-700 px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+
+  .btn-outline {
+    @apply border-2 border-primary-600 text-primary-600 hover:bg-primary-600 hover:text-white px-4 py-2 rounded-lg font-medium transition-colors;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200;
+  }
+
+  .badge-success {
+    @apply bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200;
+  }
+
+  .badge-warning {
+    @apply bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200;
+  }
+
+  .badge-danger {
+    @apply bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200;
+  }
+
+  .badge-info {
+    @apply bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200;
+  }
+}
+
+@layer utilities {
+  /* Custom scrollbar */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    @apply bg-gray-100 dark:bg-gray-800;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-400 dark:bg-gray-600 rounded-full;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    @apply bg-gray-500 dark:bg-gray-500;
+  }
+
+  /* Glass morphism effect */
+  .glass {
+    @apply bg-white/80 dark:bg-gray-800/80 backdrop-blur-lg;
+  }
+}
+
+/* Quill Editor Styles */
+.ql-container {
+  min-height: 300px;
+  font-size: 16px;
+}
+
+.ql-editor {
+  min-height: 300px;
+}
+
+/* React Big Calendar Styles */
+.rbc-calendar {
+  @apply bg-white dark:bg-gray-800 rounded-lg;
+  font-family: inherit;
+}
+
+.rbc-header {
+  @apply bg-gray-50 dark:bg-gray-700 py-3 px-2 font-semibold text-gray-700 dark:text-gray-300;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.rbc-today {
+  @apply bg-primary-50 dark:bg-primary-900/20;
+}
+
+.rbc-event {
+  @apply bg-primary-600 border-primary-700;
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.rbc-selected {
+  @apply bg-primary-700;
+}
+
+.rbc-month-view {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+}
+
+.rbc-day-bg {
+  @apply border-gray-200 dark:border-gray-700;
+}
+
+.rbc-off-range-bg {
+  @apply bg-gray-50 dark:bg-gray-900;
+}
+
+.rbc-toolbar {
+  @apply mb-4;
+}
+
+.rbc-toolbar button {
+  @apply px-3 py-2 rounded-lg text-sm font-medium transition-colors;
+  @apply bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600;
+  @apply text-gray-700 dark:text-gray-300;
+  border: none;
+}
+
+.rbc-toolbar button.rbc-active {
+  @apply bg-primary-600 text-white;
+}
+
+.dark .rbc-calendar {
+  color: #e5e7eb;
+}
+
+.dark .rbc-month-view {
+  border-color: #374151;
+}
+
+.dark .rbc-day-bg {
+  border-color: #374151;
+}
+
+.dark .rbc-header {
+  border-bottom-color: #374151;
+}
