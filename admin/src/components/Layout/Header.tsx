@@ -1,18 +1,17 @@
 import { useState } from 'react';
-import { 
-  Avatar, 
-  Dropdown, 
-  DropdownTrigger, 
-  DropdownMenu, 
+import {
+  Dropdown,
+  DropdownTrigger,
+  DropdownMenu,
   DropdownItem,
   Badge,
   Button
 } from '@nextui-org/react';
-import { 
-  Menu, 
-  Bell, 
-  LogOut, 
-  User, 
+import {
+  Menu,
+  Bell,
+  LogOut,
+  User,
   Settings,
   ChevronLeft,
   ChevronRight
@@ -20,6 +19,7 @@ import {
 import { useAuth } from '../../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { formatRoleName } from '../../utils/helpers';
+import UserAvatar from '../ui/UserAvatar';
 
 interface HeaderProps {
   onMenuClick: () => void;
@@ -129,12 +129,10 @@ export default function Header({ onMenuClick, onToggleSidebar, isSidebarCollapse
             <Dropdown placement="bottom-end">
               <DropdownTrigger>
                 <button className="flex items-center gap-2 hover:opacity-80 transition-opacity">
-                  <Avatar
-                    src={user.profilePicture}
+                  <UserAvatar
                     name={user.name}
-                    size="sm"
-                    color="primary"
-                    isBordered
+                    src={user.profilePicture}
+                    size="md"
                     className="cursor-pointer"
                   />
                   <div className="hidden md:block text-left">

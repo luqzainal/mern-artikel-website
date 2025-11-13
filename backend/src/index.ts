@@ -25,6 +25,7 @@ import mediaRoutes from './routes/media';
 import commentRoutes from './routes/comments';
 import aboutRoutes from './routes/about';
 import contactRoutes from './routes/contact';
+import dashboardRoutes from './routes/dashboard';
 
 // Load environment variables
 dotenv.config();
@@ -121,6 +122,7 @@ app.use('/api/media', mediaRoutes);
 app.use('/api/comments', commentRoutes);
 app.use('/api/about', aboutRoutes);
 app.use('/api/contact', contactRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 
 // 404 handler
 app.use((req, res) => {

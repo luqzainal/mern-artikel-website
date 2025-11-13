@@ -9,6 +9,7 @@ import ChartSection from '../components/Dashboard/ChartSection';
 import CalendarView from '../components/Dashboard/CalendarView';
 import QuickActions from '../components/Dashboard/QuickActions';
 import { DashboardStats, ActivityLog, ChartData } from '../types';
+import { getDashboardStats, getArticlesByCategory, getArticlesByStatus, getRecentActivities } from '../services/api';
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -16,107 +17,45 @@ export default function Dashboard() {
   // Fetch dashboard statistics
   const { data: stats, isLoading: statsLoading } = useQuery<DashboardStats>({
     queryKey: ['dashboard-stats'],
-    queryFn: async () => {
-      // Mock data - replace with actual API call
-      return {
-        totalArticles: 45,
-        totalUsers: 12,
-        pendingReviews: 8,
-        totalViews: 15234,
-        totalComments: 127,
-        totalCategories: 8,
-        articlesThisMonth: 12,
-        viewsThisMonth: 3421,
-      };
-    },
+    queryFn: getDashboardStats,
   });
 
   // Fetch recent activities
   const { data: activities = [], isLoading: activitiesLoading } = useQuery<ActivityLog[]>({
     queryKey: ['recent-activities'],
-    queryFn: async () => {
-      // Mock data - replace with actual API call
-      return [
-        {
-          id: '1',
-          userId: '1',
-          action: 'create',
-          entityType: 'article',
-          entityId: '1',
-          description: 'created a new article "Introduction to Islamic Finance"',
-          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
-          user: {
-            id: '1',
-            name: 'Ahmad Ibrahim',
-            email: 'ahmad@example.com',
-            role: 'author',
-            isActive: true,
-            createdAt: new Date().toISOString(),
-          },
-        },
-        {
-          id: '2',
-          userId: '2',
-          action: 'approve',
-          entityType: 'review',
-          entityId: '2',
-          description: 'approved an article for publication',
-          timestamp: new Date(Date.now() - 5 * 60 * 60 * 1000).toISOString(),
-          user: {
-            id: '2',
-            name: 'Fatimah Ali',
-            email: 'fatimah@example.com',
-            role: 'editor',
-            isActive: true,
-            createdAt: new Date().toISOString(),
-          },
-        },
-        {
-          id: '3',
-          userId: '3',
-          action: 'publish',
-          entityType: 'article',
-          entityId: '3',
-          description: 'published an article "Understanding Zakat"',
-          timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
-          user: {
-            id: '3',
-            name: 'Muhammad Hassan',
-            email: 'muhammad@example.com',
-            role: 'admin',
-            isActive: true,
-            createdAt: new Date().toISOString(),
-          },
-        },
-      ];
-    },
+    queryFn: getRecentActivities,
   });
 
   // Fetch chart data
-  const { data: articlesByCategory = [], isLoading: chartLoading } = useQuery<ChartData[]>({
+  const { data: articlesByCategoryRaw = [], isLoading: chartLoading } = useQuery({
     queryKey: ['articles-by-category'],
-    queryFn: async () => {
-      // Mock data - replace with actual API call
-      return [
-        { label: 'Fiqh', value: 15 },
-        { label: 'Aqidah', value: 12 },
-        { label: 'Hadith', value: 10 },
-        { label: 'Tafsir', value: 8 },
-      ];
-    },
+    queryFn: getArticlesByCategory,
   });
 
-  const { data: articlesByStatus = [], isLoading: statusChartLoading } = useQuery<ChartData[]>({
+  // Transform category data to match ChartData format
+  const articlesByCategory: ChartData[] = articlesByCategoryRaw.map((item: any) => ({
+    label: item.name,
+    value: item.value,
+  }));
+
+  const { data: articlesByStatusRaw = [], isLoading: statusChartLoading } = useQuery({
     queryKey: ['articles-by-status'],
-    queryFn: async () => {
-      // Mock data - replace with actual API call
-      return [
-        { label: 'Published', value: 25, color: '#10b981' },
-        { label: 'In Review', value: 8, color: '#f59e0b' },
-        { label: 'Draft', value: 12, color: '#6b7280' },
-      ];
-    },
+    queryFn: getArticlesByStatus,
   });
+
+  // Transform status data to match ChartData format with colors
+  const statusColors: Record<string, string> = {
+    PUBLISHED: '#10b981',
+    REVIEW: '#f59e0b',
+    DRAFT: '#6b7280',
+    ARCHIVED: '#ef4444',
+  };
+
+  const articlesByStatus: ChartData[] = articlesByStatusRaw.map((item: any) => ({
+    label: item.name,
+    value: item.value,
+    color: statusColors[item.name] || '#6b7280',
+  }));
 
   // Fetch calendar events
   const { data: calendarEvents = [], isLoading: calendarLoading } = useQuery({

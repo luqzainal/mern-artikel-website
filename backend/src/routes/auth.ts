@@ -2,12 +2,14 @@ import { Router } from 'express';
 import passport from 'passport';
 import jwt, { SignOptions } from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
+import { PrismaClient } from '@prisma/client';
 import { authenticateToken } from '../middleware/auth';
 import { logger } from '../utils/logger';
 
 const router = Router();
+const prisma = new PrismaClient();
 
-// Email/Password login (for development)
+// Email/Password login
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -16,22 +18,25 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Email and password are required' });
     }
 
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
-
+    // Query user with role information using Prisma
     const user = await prisma.user.findUnique({
       where: { email },
-      include: { role: true },
+      include: {
+        role: true,
+      },
     });
 
     if (!user) {
-      await prisma.$disconnect();
       return res.status(401).json({ error: 'Invalid credentials' });
+    }
+
+    // Check if user is active
+    if (!user.isActive) {
+      return res.status(401).json({ error: 'Account is inactive' });
     }
 
     // Check if user has password (some users might only have Google OAuth)
     if (!user.password) {
-      await prisma.$disconnect();
       return res.status(401).json({ error: 'This account uses Google login only' });
     }
 
@@ -39,7 +44,6 @@ router.post('/login', async (req, res) => {
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
-      await prisma.$disconnect();
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
@@ -50,8 +54,6 @@ router.post('/login', async (req, res) => {
       jwtSecret,
       { expiresIn: String(process.env.JWT_EXPIRES_IN || '7d') } as any
     );
-
-    await prisma.$disconnect();
 
     res.json({
       token,
@@ -65,6 +67,8 @@ router.post('/login', async (req, res) => {
           name: user.role.name,
           permissions: user.role.permissions,
         },
+        isActive: user.isActive,
+        createdAt: user.createdAt,
       },
     });
   } catch (error) {
@@ -106,21 +110,18 @@ router.get('/google/callback',
 // Get current user
 router.get('/me', authenticateToken, async (req: any, res) => {
   try {
-    const { PrismaClient } = await import('@prisma/client');
-    const prisma = new PrismaClient();
-
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
       include: {
         role: true,
-      }
+      },
     });
 
     if (!user) {
       return res.status(404).json({ error: 'User not found' });
     }
 
-    const responseData = {
+    res.json({
       id: user.id,
       email: user.email,
       name: user.name,
@@ -130,12 +131,9 @@ router.get('/me', authenticateToken, async (req: any, res) => {
         name: user.role.name,
         permissions: user.role.permissions,
       },
+      isActive: user.isActive,
       createdAt: user.createdAt,
-    };
-
-    await prisma.$disconnect();
-
-    res.json(responseData);
+    });
   } catch (error) {
     logger.error('Error fetching current user:', error);
     res.status(500).json({ error: 'Internal server error' });

@@ -89,10 +89,11 @@ export default function ArticleFilters({
           classNames={{
             trigger: 'h-10',
             label: 'text-xs',
+            value: 'text-gray-900',
           }}
         >
           {(item) => (
-            <SelectItem key={item.key} value={item.key}>
+            <SelectItem key={item.key} value={item.key} classNames={{ title: 'text-gray-900' }}>
               {item.label}
             </SelectItem>
           )}
@@ -108,10 +109,11 @@ export default function ArticleFilters({
           classNames={{
             trigger: 'h-10',
             label: 'text-xs',
+            value: 'text-gray-900',
           }}
         >
           {(item) => (
-            <SelectItem key={item.id} value={item.id}>
+            <SelectItem key={item.id} value={item.id} classNames={{ title: 'text-gray-900' }}>
               {item.name}
             </SelectItem>
           )}
@@ -127,10 +129,11 @@ export default function ArticleFilters({
           classNames={{
             trigger: 'h-10',
             label: 'text-xs',
+            value: 'text-gray-900',
           }}
         >
           {(item) => (
-            <SelectItem key={item.id} value={item.id}>
+            <SelectItem key={item.id} value={item.id} classNames={{ title: 'text-gray-900' }}>
               {item.name}
             </SelectItem>
           )}
@@ -146,10 +149,11 @@ export default function ArticleFilters({
           classNames={{
             trigger: 'h-10',
             label: 'text-xs',
+            value: 'text-gray-900',
           }}
         >
           {(item) => (
-            <SelectItem key={item.code} value={item.code}>
+            <SelectItem key={item.code} value={item.code} classNames={{ title: 'text-gray-900' }}>
               {item.label}
             </SelectItem>
           )}

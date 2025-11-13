@@ -24,7 +24,10 @@
       "Bash(cat:*)",
       "Bash(docker build:*)",
       "Bash(docker logs:*)",
-      "Bash(docker ps:*)"
+      "Bash(docker ps:*)",
+      "Bash(git rm:*)",
+      "Bash(timeout 10 npm run dev:*)",
+      "Bash(docker:*)"
     ],
     "deny": [],
     "ask": []

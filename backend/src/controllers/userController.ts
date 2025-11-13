@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { PrismaClient, Prisma } from '@prisma/client';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { AuthRequest } from '../middleware/auth';
 import { logger } from '../utils/logger';
 

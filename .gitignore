@@ -43,7 +43,8 @@ Thumbs.db
 backups/*.sql
 
 # Prisma
-prisma/migrations/
+# Keep migrations for production deployment
+# prisma/migrations/
 
 # Uploads
 uploads/

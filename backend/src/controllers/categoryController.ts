@@ -19,9 +19,10 @@ export const getAllCategories = async (req: Request, res: Response) => {
           },
         },
       },
-      orderBy: {
-        nameEn: 'asc',
-      },
+      orderBy: [
+        { order: 'asc' },
+        { nameEn: 'asc' },
+      ],
     });
 
     res.json(categories);
@@ -173,5 +174,36 @@ export const deleteCategory = async (req: Request, res: Response) => {
   } catch (error) {
     logger.error('Error deleting category:', error);
     res.status(500).json({ error: 'Failed to delete category' });
+  }
+};
+
+// Reorder categories
+export const reorderCategories = async (req: Request, res: Response) => {
+  try {
+    const { updates } = req.body;
+
+    // updates is an array of { id, order, parentId }
+    if (!Array.isArray(updates)) {
+      return res.status(400).json({ error: 'Updates must be an array' });
+    }
+
+    // Update all categories in a transaction
+    await prisma.$transaction(
+      updates.map((update: { id: string; order: number; parentId: string | null }) =>
+        prisma.category.update({
+          where: { id: update.id },
+          data: {
+            order: update.order,
+            parentId: update.parentId,
+          },
+        })
+      )
+    );
+
+    logger.info(`Categories reordered: ${updates.length} categories updated`);
+    res.json({ message: 'Categories reordered successfully' });
+  } catch (error) {
+    logger.error('Error reordering categories:', error);
+    res.status(500).json({ error: 'Failed to reorder categories' });
   }
 };

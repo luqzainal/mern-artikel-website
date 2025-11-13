@@ -76,3 +76,24 @@ export const login = async (email: string, password: string) => {
   }
   return data
 }
+
+// Dashboard APIs
+export const getDashboardStats = async () => {
+  const { data } = await api.get('/api/dashboard/stats')
+  return data
+}
+
+export const getArticlesByCategory = async () => {
+  const { data } = await api.get('/api/dashboard/articles-by-category')
+  return data
+}
+
+export const getArticlesByStatus = async () => {
+  const { data } = await api.get('/api/dashboard/articles-by-status')
+  return data
+}
+
+export const getRecentActivities = async () => {
+  const { data } = await api.get('/api/dashboard/recent-activities')
+  return data
+}

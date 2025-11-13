@@ -323,7 +323,23 @@ npm test
 
 ## 🚢 Deployment
 
-### Production Checklist:
+### 🚀 Production Deployment (Netlify + Supabase)
+
+Untuk production deployment dengan Netlify dan Supabase:
+
+**📖 Quick Start (30 minutes):**
+Ikuti panduan [QUICKSTART.md](./QUICKSTART.md) untuk deployment step-by-step yang mudah.
+
+**📚 Detailed Guide:**
+Untuk dokumentasi lengkap, rujuk [DEPLOYMENT.md](./DEPLOYMENT.md).
+
+**Tech Stack Production:**
+- **Database**: Supabase (PostgreSQL)
+- **Hosting**: Netlify (Frontend, Admin, Backend as serverless functions)
+- **Version Control**: GitHub
+- **CI/CD**: Netlify Auto Deploy
+
+### Docker Production Checklist (Self-hosted):
 
 1. **Update environment variables:**
    - Generate secure JWT_SECRET

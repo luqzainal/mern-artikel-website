@@ -45,19 +45,27 @@ const CategoryItem = ({ category, index }: { category: CategoryNode; index: numb
           ref={provided.innerRef}
           {...provided.draggableProps}
           {...provided.dragHandleProps}
-          className="p-3 mb-2 bg-white rounded-lg shadow-sm border"
+          className="p-3 mb-2 bg-white rounded-lg shadow-sm border border-gray-200 hover:border-teal-400 transition-colors"
+          style={{
+            ...provided.draggableProps.style,
+            color: '#1f2937', // Ensure text color is dark
+          }}
         >
           <div className="flex justify-between items-center">
             <div>
-              <p className="font-semibold">{category.nameEn}</p>
-              <p className="text-sm text-gray-500">{category.nameMy}</p>
+              <p className="font-semibold" style={{ color: '#1f2937' }}>
+                {category.nameEn}
+              </p>
+              <p className="text-sm" style={{ color: '#4b5563' }}>
+                {category.nameMy}
+              </p>
             </div>
-            <div className="text-sm text-gray-600">
+            <div className="text-sm bg-gray-100 px-3 py-1 rounded-full" style={{ color: '#374151' }}>
               Articles: {category._count?.articles || 0}
             </div>
           </div>
           {category.children && category.children.length > 0 && (
-            <div className="pl-4 mt-2 border-l-2">
+            <div className="pl-4 mt-2 border-l-2 border-teal-400">
               {category.children.map((child, childIndex) => (
                 <CategoryItem key={child.id} category={child} index={childIndex} />
               ))}
@@ -83,9 +91,57 @@ const CategoryTree = () => {
     }
   }, [flatCategories]);
 
-  const onDragEnd = (result: any) => {
-    // Drag and drop logic needs to be updated to handle nested lists
-    console.log(result);
+  const onDragEnd = async (result: any) => {
+    const { destination, source, draggableId } = result;
+
+    // Dropped outside the list
+    if (!destination) {
+      return;
+    }
+
+    // Dropped in same position
+    if (destination.index === source.index) {
+      return;
+    }
+
+    // Create a flat array of all categories with their new order
+    const reorderedCategories = Array.from(flatCategories);
+    const [removed] = reorderedCategories.splice(source.index, 1);
+    reorderedCategories.splice(destination.index, 0, removed);
+
+    // Update local state immediately for better UX
+    setCategoryTree(buildTree(reorderedCategories));
+
+    // Prepare updates for backend
+    const updates = reorderedCategories.map((cat, index) => ({
+      id: cat.id,
+      order: index,
+      parentId: cat.parentId,
+    }));
+
+    try {
+      // Send to backend
+      const response = await fetch('http://localhost:3000/api/categories/reorder', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${localStorage.getItem('token')}`,
+        },
+        body: JSON.stringify({ updates }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to reorder categories');
+      }
+
+      // Refetch categories to get updated data
+      window.location.reload();
+    } catch (error) {
+      console.error('Error reordering categories:', error);
+      // Revert on error
+      setCategoryTree(buildTree(flatCategories));
+      alert('Failed to save category order. Please try again.');
+    }
   };
 
   if (isLoading) {

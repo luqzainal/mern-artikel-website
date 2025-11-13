@@ -13,5 +13,6 @@ router.get('/slug/:slug', categoryController.getCategoryBySlug);
 router.post('/', authenticateToken, requireRole('Admin'), categoryController.createCategory);
 router.put('/:id', authenticateToken, requireRole('Admin'), categoryController.updateCategory);
 router.delete('/:id', authenticateToken, requireRole('Admin'), categoryController.deleteCategory);
+router.post('/reorder', authenticateToken, requireRole('Admin'), categoryController.reorderCategories);
 
 export default router;

@@ -56,10 +56,12 @@ services:
       NODE_ENV: development
       DATABASE_URL: postgresql://${POSTGRES_USER:-islamic_user}:${POSTGRES_PASSWORD:-islamic_pass_2024}@postgres:5432/${POSTGRES_DB:-islamic_articles}?schema=public
       JWT_SECRET: ${JWT_SECRET:-your-jwt-secret-change-this-min-32-chars-long}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:3000/auth/google/callback}
+      SESSION_SECRET: ${SESSION_SECRET:-your-session-secret-change-this-min-32-chars}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID:-}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET:-}
+      GOOGLE_CALLBACK_URL: ${GOOGLE_CALLBACK_URL:-http://localhost:3000/api/auth/google/callback}
       FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3001}
+      ADMIN_URL: ${ADMIN_URL:-http://localhost:3002}
       PORT: 3000
     ports:
       - "3000:3000"
@@ -124,6 +126,23 @@ services:
       - "traefik.http.services.admin.loadbalancer.server.port=80"
       - "com.centurylinklabs.watchtower.enable=true"
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@qalamailm.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin123}
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - backend
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+
   watchtower:
     image: containrrr/watchtower
     container_name: watchtower
@@ -142,3 +161,4 @@ networks:
 
 volumes:
   postgres_data:
+  pgadmin_data:

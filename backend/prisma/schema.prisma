@@ -56,12 +56,18 @@ model Category {
   nameMy      String
   slug        String    @unique
   description String?
+  parentId    String?
+  parent      Category? @relation("CategoryHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children    Category[] @relation("CategoryHierarchy")
+  order       Int       @default(0)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 
   articles    Article[]
 
   @@index([slug])
+  @@index([parentId])
+  @@index([order])
   @@map("categories")
 }
 
