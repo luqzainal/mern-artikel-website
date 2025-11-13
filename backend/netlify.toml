@@ -1,9 +1,12 @@
 [build]
-  command = "npm install && npx prisma generate && npm run build"
-  publish = "dist"
+  base = "backend"
+  command = "npm install --include=dev && npx prisma generate && npm run build"
+  publish = "backend/dist"
+
 
 [build.environment]
   NODE_VERSION = "18"
+  NPM_FLAGS = "--include=dev"
 
 [[redirects]]
   from = "/api/*"
