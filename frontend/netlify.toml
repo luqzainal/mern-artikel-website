@@ -1,6 +1,8 @@
 [build]
-  command = "npm install --include=dev && vite build"
+  base = "frontend"
+  command = "npm install --include=dev && npm run build"
   publish = "dist"
+
 
 [build.environment]
   NODE_VERSION = "20"
