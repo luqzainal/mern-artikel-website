@@ -1,7 +1,6 @@
 [build]
-  base = "backend"
   command = "npm install --include=dev && npx prisma generate && npm run build"
-  publish = "backend/dist"
+  publish = "dist"
 
 
 [build.environment]
